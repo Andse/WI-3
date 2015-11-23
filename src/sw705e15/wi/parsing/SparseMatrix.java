@@ -3,11 +3,12 @@ package sw705e15.wi.parsing;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
-public class SparseMatrix<T extends Number>
+public class SparseMatrix
 {
-	private final List<HashMap<Integer, T>> rowColumnsRepresentation;
-	private final List<HashMap<Integer, T>> columnRowsRepresentation;
+	private final List<HashMap<Integer, Double>> rowColumnsRepresentation;
+	private final List<HashMap<Integer, Double>> columnRowsRepresentation;
 
 	public SparseMatrix(final int newRows, final int newColumns)
 	{
@@ -36,18 +37,18 @@ public class SparseMatrix<T extends Number>
 		return columnRowsRepresentation.size();
 	}
 	
-	public void set(final int rowIndex, final int columnIndex, T value)
+	public void set(final int rowIndex, final int columnIndex, Double value)
 	{
 		rowColumnsRepresentation.get(rowIndex).put(columnIndex, value);
 		columnRowsRepresentation.get(columnIndex).put(rowIndex, value);
 	}
 	
-	public T get(final int rowIndex, final int columnIndex)
+	public Double get(final int rowIndex, final int columnIndex)
 	{
 		return rowColumnsRepresentation.get(rowIndex).get(columnIndex);
 	}
 	
-	public SparseMatrix<T> sub(final SparseMatrix<T> subtrahend)
+	public SparseMatrix sub(final SparseMatrix subtrahend)
 	{
 		if(subtrahend == null)
 		{
@@ -58,21 +59,22 @@ public class SparseMatrix<T extends Number>
 			throw new IllegalArgumentException("Matrix sizes did not match");
 		}
 		
-		final SparseMatrix<T> resultMatrix = new SparseMatrix<>(rowSize(), columnSize());
-		
+		final SparseMatrix resultMatrix = new SparseMatrix(rowSize(), columnSize());
 		
 		for(int rowCounter = 0; rowCounter < rowColumnsRepresentation.size(); rowCounter++)
 		{
+			final HashMap<Integer, Double> row = rowColumnsRepresentation.get(rowCounter);
 			
-			//HashMap<Integer, T> column 
-			
-			//resultMatrix.put
+			for(Entry<Integer, Double> entry : row.entrySet())
+			{
+				resultMatrix.set(rowCounter, entry.getKey(), entry.getValue() - subtrahend.get(rowCounter, entry.getKey()) );
+			}
 		}
 		
-		return null;
+		return resultMatrix;
 	}
 	
-	public SparseMatrix<T> add(final SparseMatrix<T> addend)
+	public SparseMatrix add(final SparseMatrix addend)
 	{
 		if(addend == null)
 		{
@@ -83,6 +85,18 @@ public class SparseMatrix<T extends Number>
 			throw new IllegalArgumentException("Matrix sizes did not match");
 		}
 		
-		return null;
+		final SparseMatrix resultMatrix = new SparseMatrix(rowSize(), columnSize());
+		
+		for(int rowCounter = 0; rowCounter < rowColumnsRepresentation.size(); rowCounter++)
+		{
+			final HashMap<Integer, Double> row = rowColumnsRepresentation.get(rowCounter);
+			
+			for(Entry<Integer, Double> entry : row.entrySet())
+			{
+				resultMatrix.set(rowCounter, entry.getKey(), entry.getValue() + addend.get(rowCounter, entry.getKey()));
+			}
+		}
+		
+		return resultMatrix;
 	}
 }
