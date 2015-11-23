@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 public class SparseMatrix
 {
@@ -60,6 +61,13 @@ public class SparseMatrix
 
 	public void set(final int rowIndex, final int columnIndex, Double value)
 	{
+		if(value == 0.0)
+		{
+			rowColumnsRepresentation.get(rowIndex).remove(columnIndex);
+			columnRowsRepresentation.get(columnIndex).remove(rowIndex);
+			return;
+		}
+		
 		rowColumnsRepresentation.get(rowIndex).put(columnIndex, value);
 		columnRowsRepresentation.get(columnIndex).put(rowIndex, value);
 	}
@@ -122,6 +130,44 @@ public class SparseMatrix
 
 		return resultMatrix;
 	}
+	
+	public SparseMatrix prod(final SparseMatrix rightMatrix)
+	{
+		if (rightMatrix == null)
+		{
+			throw new IllegalArgumentException("Argument was null");
+		}
+		else if (this.columnSize() != rightMatrix.rowSize())
+		{
+			throw new IllegalArgumentException("Matrix sizes did not match");
+		}
+
+		final SparseMatrix resultMatrix = new SparseMatrix(this.rowSize(), rightMatrix.columnSize());
+
+		this.rowOrderIterator().forEachRemaining(new Consumer<Iterator<Entry<Integer, Double>>>()
+		{
+			int rowCounter = 0;
+			
+			@Override
+			public void accept(final Iterator<Entry<Integer, Double>> entriesIterator)
+			{
+				entriesIterator.forEachRemaining(new Consumer<Entry<Integer, Double>>()
+				{
+					@Override
+					public void accept(final Entry<Integer, Double> entry)
+					{
+						final int columnIndex = entry.getKey();
+						
+						resultMatrix.set(rowCounter, columnIndex, resultMatrix.get(rowCounter, columnIndex) + entry.getValue() * rightMatrix.get(entry.getKey(), rowCounter));
+					}
+				});
+				
+				rowCounter++;
+			}
+		});
+		
+		return resultMatrix;
+	}
 
 	public Iterator<Iterator<Entry<Integer, Double>>> rowOrderIterator()
 	{
@@ -149,7 +195,6 @@ public class SparseMatrix
 					
 					Collections.sort(row, new Comparator<Entry<Integer, Double>>()
 					{
-
 						@Override
 						public int compare(Entry<Integer, Double> o1, Entry<Integer, Double> o2)
 						{
@@ -204,5 +249,50 @@ public class SparseMatrix
 				return null;
 			}
 		};
+	}
+	
+	@Override
+	public boolean equals(final Object obj)
+	{
+		if(obj == null || !(obj instanceof SparseMatrix))
+		{
+			return false;
+		}
+		
+		if(super.equals(obj))
+		{
+			return true;
+		}
+			
+		return this.equals((SparseMatrix) obj);
+	}
+	
+	public boolean equals(final SparseMatrix matrix)
+	{
+		if (matrix == null)
+		{
+			throw new IllegalArgumentException("Argument was null");
+		}
+		else if (this.rowSize() != matrix.rowSize() || this.columnSize() != matrix.columnSize())
+		{
+			throw new IllegalArgumentException("Matrix sizes did not match");
+		}
+
+		for (int rowCounter = 0; rowCounter < rowColumnsRepresentation.size(); rowCounter++)
+		{
+			final HashMap<Integer, Double> row = rowColumnsRepresentation.get(rowCounter);
+
+			for (Entry<Integer, Double> entry : row.entrySet())
+			{
+				final int columnIndex = entry.getKey();
+				
+				if(this.get(rowCounter, columnIndex) != matrix.get(rowCounter, columnIndex))
+				{
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 }
