@@ -26,6 +26,24 @@ public class SparseMatrix
 			columnRowsRepresentation.add(new HashMap<>());
 		}
 	}
+	
+	public SparseMatrix(final double[][] matrix)
+	{
+		this(matrix.length, matrix[0].length);
+		
+		for(int rowCounter = 0; rowCounter < matrix.length; rowCounter++)
+		{
+			final double [] row = matrix[rowCounter];
+			
+			for(int columnCounter = 0; columnCounter < row.length; columnCounter++)
+			{
+				final double entry = row[columnCounter];
+				
+				this.set(rowCounter, columnCounter, entry);
+			}
+		}
+		
+	}
 
 	public int rowSize()
 	{
@@ -45,7 +63,9 @@ public class SparseMatrix
 	
 	public Double get(final int rowIndex, final int columnIndex)
 	{
-		return rowColumnsRepresentation.get(rowIndex).get(columnIndex);
+		final Double entry = rowColumnsRepresentation.get(rowIndex).get(columnIndex);
+		
+		return entry == null ? 0 : entry;
 	}
 	
 	public SparseMatrix sub(final SparseMatrix subtrahend)
