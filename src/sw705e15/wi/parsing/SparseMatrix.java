@@ -187,9 +187,9 @@ public class SparseMatrix
 			{
 				if (this.hasNext())
 				{
-					final List<Entry<Integer, Double>> row = new ArrayList<>(columnRowsRepresentation.get(index++).entrySet());
+					final List<Entry<Integer, Double>> column = new ArrayList<>(columnRowsRepresentation.get(index++).entrySet());
 					
-					Collections.sort(row, new Comparator<Entry<Integer, Double>>()
+					Collections.sort(column, new Comparator<Entry<Integer, Double>>()
 					{
 						@Override
 						public int compare(Entry<Integer, Double> o1, Entry<Integer, Double> o2)
@@ -198,7 +198,7 @@ public class SparseMatrix
 						}
 					});
 					
-					return row.iterator();
+					return column.iterator();
 				}
 				
 				return null;
