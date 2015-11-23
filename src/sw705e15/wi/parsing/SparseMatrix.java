@@ -26,6 +26,16 @@ public class SparseMatrix<T extends Number>
 		}
 	}
 
+	public int rowSize()
+	{
+		return rowColumnsRepresentation.size();
+	}
+	
+	public int columnSize()
+	{
+		return columnRowsRepresentation.size();
+	}
+	
 	public void set(final int rowIndex, final int columnIndex, T value)
 	{
 		rowColumnsRepresentation.get(rowIndex).put(columnIndex, value);
@@ -37,13 +47,42 @@ public class SparseMatrix<T extends Number>
 		return rowColumnsRepresentation.get(rowIndex).get(columnIndex);
 	}
 	
-	public SparseMatrix sub(final SparseMatrix subtrahend)
+	public SparseMatrix<T> sub(final SparseMatrix<T> subtrahend)
 	{
+		if(subtrahend == null)
+		{
+			throw new IllegalArgumentException("Argument was null");
+		}
+		else if(this.rowSize() != subtrahend.rowSize() || this.columnSize() != subtrahend.columnSize())
+		{
+			throw new IllegalArgumentException("Matrix sizes did not match");
+		}
+		
+		final SparseMatrix<T> resultMatrix = new SparseMatrix<>(rowSize(), columnSize());
+		
+		
+		for(int rowCounter = 0; rowCounter < rowColumnsRepresentation.size(); rowCounter++)
+		{
+			
+			//HashMap<Integer, T> column 
+			
+			//resultMatrix.put
+		}
+		
 		return null;
 	}
 	
-	public SparseMatrix add(final SparseMatrix subtrahend)
+	public SparseMatrix<T> add(final SparseMatrix<T> addend)
 	{
+		if(addend == null)
+		{
+			throw new IllegalArgumentException("Argument was null");
+		}
+		else if(this.rowSize() != addend.rowSize() || this.columnSize() != addend.columnSize())
+		{
+			throw new IllegalArgumentException("Matrix sizes did not match");
+		}
+		
 		return null;
 	}
 }
