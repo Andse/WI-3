@@ -158,7 +158,13 @@ public class SparseMatrix
 					{
 						final int columnIndex = entry.getKey();
 						
-						resultMatrix.set(rowCounter, columnIndex, resultMatrix.get(rowCounter, columnIndex) + entry.getValue() * rightMatrix.get(entry.getKey(), rowCounter));
+						for(int innerRowCounter = 0; innerRowCounter < rightMatrix.rowSize(); innerRowCounter++)
+						{
+							final Double oldValue = resultMatrix.get(rowCounter, columnIndex);
+							final double valueToAdd = SparseMatrix.this.get(rowCounter, innerRowCounter) * rightMatrix.get(innerRowCounter, columnIndex);
+						
+							resultMatrix.set(rowCounter, columnIndex, oldValue + valueToAdd);
+						}
 					}
 				});
 				
@@ -278,15 +284,32 @@ public class SparseMatrix
 			throw new IllegalArgumentException("Matrix sizes did not match");
 		}
 
-		for (int rowCounter = 0; rowCounter < rowColumnsRepresentation.size(); rowCounter++)
+		// Check from this matrix to the argument matrix
+		for (int rowCounter = 0; rowCounter < this.rowColumnsRepresentation.size(); rowCounter++)
 		{
-			final HashMap<Integer, Double> row = rowColumnsRepresentation.get(rowCounter);
+			final HashMap<Integer, Double> row = this.rowColumnsRepresentation.get(rowCounter);
 
 			for (Entry<Integer, Double> entry : row.entrySet())
 			{
 				final int columnIndex = entry.getKey();
 				
-				if(this.get(rowCounter, columnIndex) != matrix.get(rowCounter, columnIndex))
+				if(entry.getValue().doubleValue() != matrix.get(rowCounter, columnIndex).doubleValue())
+				{
+					return false;
+				}
+			}
+		}
+		
+		// Check from the argument matrix to this matrix  
+		for (int rowCounter = 0; rowCounter < matrix.rowColumnsRepresentation.size(); rowCounter++)
+		{
+			final HashMap<Integer, Double> row = matrix.rowColumnsRepresentation.get(rowCounter);
+
+			for (Entry<Integer, Double> entry : row.entrySet())
+			{
+				final int columnIndex = entry.getKey();
+				
+				if(entry.getValue().doubleValue() != this.get(rowCounter, columnIndex).doubleValue())
 				{
 					return false;
 				}
