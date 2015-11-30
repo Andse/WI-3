@@ -29,7 +29,7 @@ public class SparseMatrix
 		{
 			columnRowsRepresentation.add(new HashMap<>());
 		}
-		
+
 		return;
 	}
 
@@ -64,13 +64,13 @@ public class SparseMatrix
 
 	public void set(final int rowIndex, final int columnIndex, Double value)
 	{
-		if(value == 0.0)
+		if (value == 0.0)
 		{
 			rowColumnsRepresentation.get(rowIndex).remove(columnIndex);
 			columnRowsRepresentation.get(columnIndex).remove(rowIndex);
 			return;
 		}
-		
+
 		rowColumnsRepresentation.get(rowIndex).put(columnIndex, value);
 		columnRowsRepresentation.get(columnIndex).put(rowIndex, value);
 	}
@@ -133,7 +133,7 @@ public class SparseMatrix
 
 		return resultMatrix;
 	}
-	
+
 	public SparseMatrix prod(final SparseMatrix rightMatrix)
 	{
 		if (rightMatrix == null)
@@ -147,35 +147,21 @@ public class SparseMatrix
 
 		final SparseMatrix resultMatrix = new SparseMatrix(this.rowSize(), rightMatrix.columnSize());
 
-		this.rowOrderIterator().forEachRemaining(new Consumer<Iterator<Entry<Integer, Double>>>()
+		for (int rowCounter = 0; rowCounter < resultMatrix.rowSize(); rowCounter++)
 		{
-			int rowCounter = 0;
-			
-			@Override
-			public void accept(final Iterator<Entry<Integer, Double>> entriesIterator)
+			for (int columnCounter = 0; columnCounter < resultMatrix.columnSize(); columnCounter++)
 			{
-				entriesIterator.forEachRemaining(new Consumer<Entry<Integer, Double>>()
+				for (int innerRowCounter = 0; innerRowCounter < rightMatrix.rowSize(); innerRowCounter++)
 				{
-					@Override
-					public void accept(final Entry<Integer, Double> entry)
-					{
-						final int rowIndex = rowCounter;
-						final int columnIndex = entry.getKey();
-						
-						for(int innerRowCounter = 0; innerRowCounter < rightMatrix.rowSize(); innerRowCounter++)
-						{
-							final Double oldValue = resultMatrix.get(rowCounter, columnIndex);
-							final double valueToAdd = SparseMatrix.this.get(rowCounter, innerRowCounter) * rightMatrix.get(innerRowCounter, columnIndex);
-						
-							resultMatrix.set(rowIndex, columnIndex, oldValue + valueToAdd);
-						}
-					}
-				});
-				
-				rowCounter++;
+					final Double oldValue = resultMatrix.get(rowCounter, columnCounter);
+					final double valueToAdd = SparseMatrix.this.get(rowCounter, innerRowCounter) * rightMatrix.get(innerRowCounter, columnCounter);
+
+					resultMatrix.set(rowCounter, columnCounter, oldValue + valueToAdd);
+				}
 			}
-		});
-		
+
+		}
+
 		return resultMatrix;
 	}
 
@@ -202,7 +188,7 @@ public class SparseMatrix
 				if (this.hasNext())
 				{
 					final List<Entry<Integer, Double>> row = new ArrayList<>(rowColumnsRepresentation.get(index++).entrySet());
-					
+
 					Collections.sort(row, new Comparator<Entry<Integer, Double>>()
 					{
 						@Override
@@ -211,10 +197,10 @@ public class SparseMatrix
 							return Integer.compare(o1.getKey(), o2.getKey());
 						}
 					});
-					
+
 					return row.iterator();
 				}
-				
+
 				return null;
 			}
 		};
@@ -243,7 +229,7 @@ public class SparseMatrix
 				if (this.hasNext())
 				{
 					final List<Entry<Integer, Double>> column = new ArrayList<>(columnRowsRepresentation.get(index++).entrySet());
-					
+
 					Collections.sort(column, new Comparator<Entry<Integer, Double>>()
 					{
 						@Override
@@ -252,31 +238,31 @@ public class SparseMatrix
 							return Integer.compare(o1.getKey(), o2.getKey());
 						}
 					});
-					
+
 					return column.iterator();
 				}
-				
+
 				return null;
 			}
 		};
 	}
-	
+
 	@Override
 	public boolean equals(final Object obj)
 	{
-		if(obj == null || !(obj instanceof SparseMatrix))
+		if (obj == null || !(obj instanceof SparseMatrix))
 		{
 			return false;
 		}
-		
-		if(super.equals(obj))
+
+		if (super.equals(obj))
 		{
 			return true;
 		}
-			
+
 		return this.equals((SparseMatrix) obj);
 	}
-	
+
 	public boolean equals(final SparseMatrix matrix)
 	{
 		if (matrix == null)
@@ -296,15 +282,15 @@ public class SparseMatrix
 			for (Entry<Integer, Double> entry : row.entrySet())
 			{
 				final int columnIndex = entry.getKey();
-				
-				if(entry.getValue().doubleValue() != matrix.get(rowCounter, columnIndex).doubleValue())
+
+				if (entry.getValue().doubleValue() != matrix.get(rowCounter, columnIndex).doubleValue())
 				{
 					return false;
 				}
 			}
 		}
-		
-		// Check from the argument matrix to this matrix  
+
+		// Check from the argument matrix to this matrix
 		for (int rowCounter = 0; rowCounter < matrix.rowColumnsRepresentation.size(); rowCounter++)
 		{
 			final HashMap<Integer, Double> row = matrix.rowColumnsRepresentation.get(rowCounter);
@@ -312,14 +298,14 @@ public class SparseMatrix
 			for (Entry<Integer, Double> entry : row.entrySet())
 			{
 				final int columnIndex = entry.getKey();
-				
-				if(entry.getValue().doubleValue() != this.get(rowCounter, columnIndex).doubleValue())
+
+				if (entry.getValue().doubleValue() != this.get(rowCounter, columnIndex).doubleValue())
 				{
 					return false;
 				}
 			}
 		}
-		
+
 		return true;
 	}
 }
