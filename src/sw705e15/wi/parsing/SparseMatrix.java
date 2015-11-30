@@ -18,17 +18,19 @@ public class SparseMatrix
 	{
 		rowColumnsRepresentation = new ArrayList<>(newRows);
 
-		for (int columnCounter = 0; columnCounter < newColumns; columnCounter++)
+		for (int rowCounter = 0; rowCounter < newRows; rowCounter++)
 		{
 			rowColumnsRepresentation.add(new HashMap<>());
 		}
 
 		columnRowsRepresentation = new ArrayList<>(newColumns);
 
-		for (int rowCounter = 0; rowCounter < newRows; rowCounter++)
+		for (int columnCounter = 0; columnCounter < newColumns; columnCounter++)
 		{
 			columnRowsRepresentation.add(new HashMap<>());
 		}
+		
+		return;
 	}
 
 	public SparseMatrix(final double[][] matrix)
@@ -47,6 +49,7 @@ public class SparseMatrix
 			}
 		}
 
+		return;
 	}
 
 	public int rowSize()
@@ -156,6 +159,7 @@ public class SparseMatrix
 					@Override
 					public void accept(final Entry<Integer, Double> entry)
 					{
+						final int rowIndex = rowCounter;
 						final int columnIndex = entry.getKey();
 						
 						for(int innerRowCounter = 0; innerRowCounter < rightMatrix.rowSize(); innerRowCounter++)
@@ -163,7 +167,7 @@ public class SparseMatrix
 							final Double oldValue = resultMatrix.get(rowCounter, columnIndex);
 							final double valueToAdd = SparseMatrix.this.get(rowCounter, innerRowCounter) * rightMatrix.get(innerRowCounter, columnIndex);
 						
-							resultMatrix.set(rowCounter, columnIndex, oldValue + valueToAdd);
+							resultMatrix.set(rowIndex, columnIndex, oldValue + valueToAdd);
 						}
 					}
 				});

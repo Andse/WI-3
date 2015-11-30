@@ -10,12 +10,25 @@ import sw705e15.wi.parsing.SparseMatrix;
 public class SparseMatrixTest
 {
 	@Test
-	public void testMatrixProduct()
+	public void testMatrixProduct1()
 	{
 		final SparseMatrix matrix1 = new SparseMatrix(new double[][]{{1, 2}, {3, 4}}); 
 		final SparseMatrix matrix2 = new SparseMatrix(new double[][]{{4, 3}, {2, 1}});
 		
 		final SparseMatrix expectedMatrix = new SparseMatrix(new double[][]{{8, 5}, {20, 13}});
+		
+		final SparseMatrix calculatedMatrix = matrix1.prod(matrix2);
+		
+		Assert.assertTrue(calculatedMatrix.equals(expectedMatrix));		
+	}
+	
+	@Test
+	public void testMatrixProduct2()
+	{
+		final SparseMatrix matrix1 = new SparseMatrix(new double[][]{{1, 2, 3}, {4, 5, 6}}); 
+		final SparseMatrix matrix2 = new SparseMatrix(new double[][]{{1, 2}, {3, 4}, {5, 6}});
+		
+		final SparseMatrix expectedMatrix = new SparseMatrix(new double[][]{{22, 28}, {49, 64}});
 		
 		final SparseMatrix calculatedMatrix = matrix1.prod(matrix2);
 		
