@@ -23,29 +23,24 @@ public class Processing {
 	private static double observedRatingsOverall = 0;
 	private static double summarizedRatingsOverall = 0;
 	private static double totalNormalization = 0;
-	
-	private enum ProcessingTypes{PRE, POST};
 
-	private static final int K = 35;
-	private static final double SCALE_CONSTANT = 0.001;
+	private static final int K = 9;
+	private static final double SCALE_CONSTANT = 0.0001;
 	
 	private static SparseMatrix A;
 	private static SparseMatrix B;
 	
 	
 	public Processing(final SparseMatrix input) {
-		//;
-		SparseMatrix newData = preOrPostProcessing(input, ProcessingTypes.PRE);
 		
-		SparseMatrix dataengangtil = funkSVD(newData);
+		SparseMatrix newData = preProcessing(input);
+		
+		funkSVD(newData);
 		
 		
 	}
 
-	static public SparseMatrix preOrPostProcessing(final SparseMatrix initialMatrix, final ProcessingTypes procType) {
-		
-		switch (procType) {
-		case PRE:
+	static public SparseMatrix preProcessing(final SparseMatrix initialMatrix) {
 			
 			// Iterate through all rows and count their amount of ratings; Movies
 			for (int rowCount = 0; rowCount < initialMatrix.rowSize(); rowCount++) {
@@ -75,8 +70,6 @@ public class Processing {
 				for (int rowCount = 0; rowCount < initialMatrix.rowSize(); rowCount++) {
 					
 					double currentVal = initialMatrix.get(rowCount, columnCount);
-					observedRatingsOverall++;
-					summarizedRatingsOverall += currentVal;
 					amountOfRatingsForUser++;
 					summarizedRatingsForUser += currentVal;
 				}
@@ -100,32 +93,10 @@ public class Processing {
 			}
 
 			return initialMatrix;
-			
-		case POST:
-			
-			for (int rowCount = 0; rowCount < initialMatrix.rowSize(); rowCount++) {
-
-				double movieNormalization = (1.0 / observedMovieRatings.get(rowCount)) * summarizedMovieRatings.get(rowCount);
-				for (int columnCount = 0; columnCount < initialMatrix.columnSize(); columnCount++) {
-					double initialValue = initialMatrix.get(rowCount, columnCount);
-					double userNormalization = (1.0 / observedUserRatings.get(columnCount))
-							* summarizedUserRatings.get(columnCount);
-					double newValue = initialValue + movieNormalization + userNormalization - totalNormalization;
-					initialMatrix.set(rowCount, columnCount, newValue);
-				}
-			}
-
-			return initialMatrix;
-			
-		default:
-			System.out.println("Did not understand processingtype enum value, returning null.");
-			return null;
-		}
-		
 	}
 	
 	
-	public SparseMatrix funkSVD(final SparseMatrix data)
+	public void funkSVD(final SparseMatrix data)
 	{
 		A = new SparseMatrix(data.rowSize(), K);
 		B = new SparseMatrix(K, data.columnSize());
@@ -141,10 +112,16 @@ public class Processing {
 				B.set(rowCount, colCount, Math.random());
 			}
 		}
-		
+		double oldDataError = Double.MAX_VALUE;
 		// SKIFT DET HER LOOP NÅR VI VED HVOR LANG TID VI SKAL RENDE
 		while(true)
 		{
+			double dataError = calculateError(data);
+			if(dataError > oldDataError)
+			{
+				System.out.println("VI HAR VUNDET: " + "GAMMEL = " + oldDataError + " NY = " + dataError);
+			}
+			oldDataError = dataError;
 			stochasticGradientDescentStepForA(data);
 			stochasticGradientDescentStepForB(data);
 		}
@@ -204,7 +181,7 @@ public class Processing {
 		}
 		
 		for (int addendCount = 0; addendCount < addend.length; addendCount++) {
-			B.set(randomMovieIndex, addendCount, addend[addendCount]);
+			B.set(addendCount, randomUserIndex, addend[addendCount]);
 		}
 		
 		return B;
@@ -231,5 +208,28 @@ public class Processing {
 
 		return userMoviePredictions;	
 	}
+	
+	
+	public static double calculateError(final SparseMatrix R) {
+
+        double errorSum = 0d;
+
+        for (int movieIndex = 0; movieIndex < A.rowSize(); movieIndex++) {
+            for (int userIndex = 0; userIndex < B.columnSize(); userIndex++) {
+                double ratingR = R.get(movieIndex, userIndex);
+
+                double tempSum = 0d;
+                for (int k = 0; k < K; k++) {
+                    double ratingAB = A.get(movieIndex, k) * B.get(k, userIndex);
+                    tempSum += ratingAB;
+                }
+
+                // Add the squared temp sum to the error sum
+                errorSum += Math.pow(ratingR - tempSum, 2);
+            }
+        }
+
+        return errorSum;
+    }
 
 }

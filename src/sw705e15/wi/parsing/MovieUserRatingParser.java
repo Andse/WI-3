@@ -16,7 +16,7 @@ import org.jblas.DoubleMatrix;
 public class MovieUserRatingParser
 {
 	@SuppressWarnings("serial")
-	public static class UserMovieRatingMatrix extends DoubleMatrix
+	public static class UserMovieRatingMatrix extends SparseMatrix
 	{
 		private UserMovieRatingMatrix(final int newRows, final int newColumns)
 		{
@@ -157,7 +157,7 @@ public class MovieUserRatingParser
 				
 				final Integer indexForUser = qualifyingAndPredictionDataMatrix.userIDToIndexMapping.get(userID);
 				
-				qualifyingAndPredictionDataMatrix.put(indexForMovie, indexForUser, 0);
+				qualifyingAndPredictionDataMatrix.set(indexForMovie, indexForUser, 0d);
 			}
 		}
 		
@@ -187,7 +187,7 @@ public class MovieUserRatingParser
 				
 				final Integer indexForUser = probeDataMatrix.userIDToIndexMapping.get(userID);
 				
-				probeDataMatrix.put(indexForMovie, indexForUser, rating);
+				probeDataMatrix.set(indexForMovie, indexForUser, rating.doubleValue());
 			}
 		}
 		
@@ -217,7 +217,7 @@ public class MovieUserRatingParser
 				
 				final Integer indexForUser = trainingDataMatrix.userIDToIndexMapping.get(userID);
 				
-				trainingDataMatrix.put(indexForMovie, indexForUser, rating);
+				trainingDataMatrix.set(indexForMovie, indexForUser, rating.doubleValue());
 			}	
 		}
 
