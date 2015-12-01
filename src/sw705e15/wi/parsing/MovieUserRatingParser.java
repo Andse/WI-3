@@ -10,9 +10,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+
 
 public class MovieUserRatingParser
 {
@@ -44,6 +42,15 @@ public class MovieUserRatingParser
 		public final HashMap<Integer, Integer> userIDToIndexMapping = new HashMap<>();
 		public final HashMap<Integer, Integer> movieIDToIndexMapping = new HashMap<>();
 		public HashMap<Integer, String> movieIDToMovieTitleMapping = new HashMap<>();
+		
+		public double getRatingForMovieAndUserWithIDs(final int movieID, final int userID)
+		{
+			final int movieIndex = movieIDToIndexMapping.get(movieID);
+			final int userIndex = userIDToIndexMapping.get(userID);
+			
+			return this.get(movieIndex, userIndex);
+		}
+		
 	}
 
 	// Movies: Rows
@@ -85,12 +92,6 @@ public class MovieUserRatingParser
 								final int userID = Integer.parseInt(substring[0]);
 								final int rating = Integer.parseInt(substring[1]);
 								
-								if(userID == 25361 && movieId == 18)
-								{
-									int puha = 2;
-									puha = puha + 1;
-									
-								}
 								userIDToRatingForMovie.get(movieId).put(userID, rating);
 								userIDs.add(userID);
 							}
